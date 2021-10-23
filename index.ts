@@ -6,26 +6,28 @@ enum Fruit {
   APPLE = 'apple'
 }
 const fruitBasket = {
-  banana: 2,
-  orange: 3,
-  kiwi: 2,
-  apple: 3
+  [Fruit.BANANA]: 2,
+  [Fruit.ORANGE]: 3,
+  [Fruit.KIWI]: 2,
+  [Fruit.APPLE]: 3
 };
+
+// console.log(fruitBasket[Fruit.BANANA])
 
 // 2. Add typings/access modifiers to the Person class
 class Person {
-  name;
-  gender;
-  age;
-  likes;
-  public constructor(name, gender, age, likes) {
+  private name: string;
+  private gender: string;
+  private age: number;
+  private likes: string[];
+  public constructor(name: string, gender: string, age: number, likes: string[]) {
     this.name = name;
     this.gender = gender;
     this.age = age;
     this.likes = likes;
   }
 
-  public introduce() {
+  public introduce(): string {
     const { name, gender, age, likes } = this;
     const goodLookingMap = new Map([['male', 'handsome'], ['female', 'cute']]);
     return `
@@ -37,30 +39,45 @@ class Person {
 
 const Dima = new Person('Dima', 'male', 22, ['video games', 'martial arts']);
 
+// console.log(Dima.introduce())
+
 // 3. Add typings/access modifiers to MovieService class
 class MovieService {
-  logger;
+  logger: Logger;
   constructor(logger) {
     this.logger = logger;
   }
-  public getMovies() {
-    return Promise.resolve(['Jaws', 'Spider-Man']).catch(err => {
+  public getMovies(): Promise<string[] | void> {
+    return Promise.resolve(['Jaws', 'Spider-Man'])
+    .then((result) => {
+      console.log(result);
+      return result
+    })
+    .then(() => {throw new Error('error')})
+    .catch(err => {
       this.logger.log(err);
       return [];
     });
   }
 }
 
-class LoggerOne {
-  public log(err: Error) {
+class LoggerOne implements Logger {
+  public log(err: Error): void {
     console.log('sending logs to log storage 1', err);
   }
 }
-class LoggerTwo {
-  public log(err: Error) {
+class LoggerTwo implements Logger {
+  public log(err: Error): void {
     console.log('sending logs to log storage 2', err);
   }
 }
 
+interface Logger {
+  log: (err: Error) => void;
+}
+
 const movieService1 = new MovieService(new LoggerOne());
 const movieService2 = new MovieService(new LoggerTwo());
+
+console.log(movieService1.getMovies());
+console.log(movieService2.getMovies());
